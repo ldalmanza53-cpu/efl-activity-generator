@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EFL Activity Generator Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .spinner { border: 4px solid rgba(255, 255, 255, 0.1); border-left-color: #6366f1; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4 md:p-8">
+
+    <!-- Header -->
+    <header class="w-full max-w-4xl flex items-center justify-between mb-8">
+        <div class="flex items-center gap-3">
+            <div class="bg-indigo-600 p-2.5 rounded-lg shadow-lg shadow-indigo-600/30">
+                <i data-lucide="zap" class="w-6 h-6 text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight text-white">EFL Activity Generator</h1>
+                <p class="text-xs text-indigo-300 font-medium">Interactive Speaking Studio</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- FORM SECTION -->
+    <main id="form-section" class="w-full max-w-4xl glass-panel rounded-2xl p-6 md:p-8 shadow-2xl transition-all duration-300">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Config & Settings -->
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Gemini API Key</label>
+                    <input type="password" id="api-key" placeholder="Paste your API Key here..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                    <p class="text-[10px] text-slate-500 mt-1">Your key is not saved. It is only used locally in your browser.</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">CEFR Level</label>
+                        <select id="level" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                            <option value="A1">A1 - Beginner</option>
+                            <option value="A2">A2 - Elementary</option>
+                            <option value="B1">B1 - Intermediate</option>
+                            <option value="B2">B2 - Upper Intermediate</option>
+                            <option value="C1">C1 - Advanced</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Class / Unit</label>
+                        <input type="number" id="class-num" min="1" placeholder="E.g., 12" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Students per Group (1 to 6)</label>
+                    <input type="number" id="students" min="1" max="6" value="4" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                </div>
+            </div>
+
+            <!-- Objectives Input -->
+            <div class="space-y-2 flex flex-col h-full">
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Communicative Objectives</label>
+                <textarea id="objectives" placeholder="Paste the objectives, grammar, and functions extracted from your Syllabus here..." class="w-full flex-1 bg-slate-900 border border-slate-700 rounded-lg p-4 text-sm text-white focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+            </div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-slate-800 flex justify-end">
+            <button onclick="generateActivity()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-xl flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-indigo-600/30">
+                <i data-lucide="sparkles" class="w-5 h-5"></i> Generate Activity
+            </button>
+        </div>
+    </main>
+
+    <!-- LOADING SECTION -->
+    <div id="loading-section" class="hidden w-full max-w-4xl glass-panel rounded-2xl p-12 flex flex-col items-center justify-center gap-4 text-center">
+        <div class="spinner"></div>
+        <h3 class="text-lg font-bold text-white">Designing Activity...</h3>
+        <p class="text-sm text-slate-400">Analyzing the level, objectives, and structuring the code (takes approx. 15-20 seconds).</p>
+    </div>
+
+    <!-- RESULT SECTION -->
+    <div id="result-section" class="hidden w-full max-w-6xl h-[85vh] glass-panel rounded-2xl flex flex-col overflow-hidden shadow-2xl relative">
+        <!-- Toolbar -->
+        <div class="bg-slate-900 border-b border-slate-700 p-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-2">
+                <i data-lucide="check-circle" class="w-5 h-5 text-emerald-400"></i>
+                <span class="font-bold text-sm">Activity Generated Successfully</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="downloadHTML()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-colors">
+                    <i data-lucide="download" class="w-4 h-4"></i> Download HTML
+                </button>
+                <button onclick="resetApp()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-colors">
+                    <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Create New Activity
+                </button>
+            </div>
+        </div>
+        <!-- Iframe Preview -->
+        <iframe id="preview-frame" class="w-full flex-1 bg-white border-none"></iframe>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        let generatedHTMLCode = "";
+
+        const systemPrompt = `You are an expert EFL (English as a Foreign Language) Instructional Designer and Senior Front-End Web Developer. Your primary function is to strictly read the user's provided learning objectives, filter the content strictly by the EXACT CEFR level and class/unit number requested, and build a single-file interactive HTML web application for a speaking production task.
+
+======================================================================
+CRITICAL LANGUAGE OVERRIDE DIRECTIVE (ZERO-TOLERANCE RULE)
+======================================================================
+- REGARDLESS OF THE LANGUAGE THE USER USES IN THEIR PROMPT, YOUR ENTIRE RESPONSE MUST BE 100% IN ENGLISH.
+- EVERY SINGLE WORD of your output—including the pedagogical breakdown, scenario summaries, task instructions, 3D flip role cards, phrase toolkits, UI labels, buttons, scratchpad placeholders, and HTML/CSS/JS code—MUST BE STRICTLY WRITTEN IN ENGLISH.
+- DO NOT WRITE A SINGLE WORD OF SPANISH IN ANY PART OF YOUR RESPONSE OR INSIDE THE HTML CODE.
+
+======================================================================
+CRITICAL DOCUMENT PARSING PROTOCOL
+======================================================================
+Before designing the activity, execute this strict document inspection sequence:
+1. IDENTIFY USER PARAMS: Read the user's input to identify [TARGET_LEVEL], [TARGET_CLASS], [STUDENTS_COUNT] and the explicitly pasted objectives.
+2. NO SUBSTITUTION GUARDRAIL: Under NO circumstances should you invent, borrow, or guess objectives from lower/higher levels. Base your activity purely on the provided objectives.
+
+======================================================================
+PEDAGOGICAL & CLASS PROGRESSION DIRECTIVES
+======================================================================
+- Instructional Language Calibrated to Level: The vocabulary used in task instructions, scenario descriptions, and UI prompts MUST strictly match the target CEFR level. For A1/A2, use simple, high-frequency words, short imperative sentences, and clear visual framing. Never use complex B2/C1 academic vocabulary in lower-level instructions.
+- Class Number Progression Sensitivity: Pay strict attention to the Class/Unit number, especially in A1 and A2. Class 5 represents an early beginner stage with minimal cumulative vocabulary, whereas Class 65 represents a much broader repertoire. Scale sentence length, scenario depth, and instruction vocabulary precisely.
+- NO TIMERS: Do NOT include any countdown clock, timer, time limit display, or audio beeps in the web application. The activity is self-paced.
+- If the student count is 1, adjust the activity to be a presentation, monologue, or direct interactive interview with the teacher.
+
+======================================================================
+LAYOUT & UI STRUCTURE REQUIREMENTS
+======================================================================
+1. THEMATIC & VIBRANT COLOR PALETTE: Use vivid, high-contrast, visually engaging Tailwind CSS color themes customized specifically to the topic or narrative theme of the communicative task (e.g., Emerald/Teal for eco, Amber/Slate for detective, Warm Coral for travel). Avoid plain monochrome or dull grayscale designs.
+2. STANDALONE MAIN TASK CARD (PLACED BEFORE ROLES): Position a large, prominent "Main Task & Scenario Overview" card directly ABOVE the role cards grid. Must contain: Full narrative context, Concrete Final Deliverable, and Step-by-Step Mission Stages Breakdown.
+3. INTERACTIVE 3D FLIP ROLE CARDS GRID: Built as 3D flip cards using CSS perspective (perspective: 1000px; transform-style: preserve-3d; transition: transform 0.6s;). Front Side: Role title, avatar/icon, persona summary, and a clear "Tap / Click to Flip" button. Back Side: Deep secret backstory, conflicting personal motives, specific data constraints, and a role-specific target language checklist.
+4. FULL RESPONSIVENESS: Layout must adapt seamlessly for PC projectors/laptops as well as mobile devices (grid-cols-1 md:grid-cols-2 lg:grid-cols-4).
+
+======================================================================
+TECHNICAL FRONT-END GUARDRAILS
+======================================================================
+- LUCIDE ICON SIZING (MANDATORY): EVERY <i data-lucide="..."> MUST include explicit size classes (e.g., class="w-5 h-5" or class="w-6 h-6"). Un-sized icons break rendering.
+- MODAL CONTROLS: Use Tailwind's native 'hidden' class. Include close buttons (w-6 h-6, p-2, cursor-pointer) and a backdrop click handler (closeModalOnBackdrop).
+- MANDATORY COMPONENTS: Standalone Large Main Task & Scenario Card, Interactive 3D Flip Role Cards Grid, Clickable Scaffolding Toolkit (navigator.clipboard.writeText), Group Scratchpad textarea, Objectives Dossier Modal.
+
+======================================================================
+REQUIRED RESPONSE FORMAT (STRICTLY IN ENGLISH)
+======================================================================
+1. Pedagogical Overview
+- Target CEFR Level & Class Number
+- Extracted Unit Objectives
+- Concrete Deliverable
+- Scenario & Progression Analysis (Explain thematic color palette and vocabulary adaptation)
+- Mission Stage Breakdown
+
+2. Executable Single-File Web Application Code
+Provide one complete, executable HTML block (<!DOCTYPE html>...</html>) ready to run. Do NOT output markdown formatting like \`\`\`html around the code block.`;
+
+        async function generateActivity() {
+            const apiKey = document.getElementById('api-key').value.trim();
+            const level = document.getElementById('level').value;
+            const classNum = document.getElementById('class-num').value.trim();
+            const students = document.getElementById('students').value;
+            const objectives = document.getElementById('objectives').value.trim();
+
+            if (!apiKey || !classNum || !objectives) {
+                alert("Please fill in all required fields (API Key, Class/Unit, and Objectives).");
+                return;
+            }
+
+            if (students < 1 || students > 6) {
+                alert("The number of students must be between 1 and 6.");
+                return;
+            }
+
+            // Show Loading and hide Form
+            document.getElementById('form-section').classList.add('hidden');
+            document.getElementById('loading-section').classList.remove('hidden');
+
+            const userPrompt = `Please generate the 3D flip-card speaking activity web app based on the following exact parameters:
+- Target CEFR Level: ${level}
+- Target Class Number: ${classNum}
+- Number of Students: ${students}
+- Target Objectives & Grammar: ${objectives}
+
+Ensure 100% English output, no timers, vibrant thematic colors, and adherence to all UI guidelines.`;
+
+            try {
+                // Using gemini-2.5-flash for rapid code generation
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        system_instruction: { parts: [{ text: systemPrompt }] },
+                        contents: [{ parts: [{ text: userPrompt }] }],
+                        generationConfig: { temperature: 0.7 }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error.message);
+                }
+
+                let rawOutput = data.candidates[0].content.parts[0].text;
+                
+                // Extract cleanly by removing Markdown markers if Gemini includes them
+                const htmlMatch = rawOutput.match(/<!DOCTYPE html>[\s\S]*<\/html>/i);
+                if (htmlMatch) {
+                    generatedHTMLCode = htmlMatch[0];
+                } else {
+                    generatedHTMLCode = rawOutput.replace(/^```html\s*/i, '').replace(/```\s*$/i, '');
+                }
+
+                // Inject into iframe
+                const iframe = document.getElementById('preview-frame');
+                iframe.srcdoc = generatedHTMLCode;
+
+                // Transition to Result view
+                document.getElementById('loading-section').classList.add('hidden');
+                document.getElementById('result-section').classList.remove('hidden');
+
+            } catch (error) {
+                alert("Error generating activity: " + error.message);
+                document.getElementById('loading-section').classList.add('hidden');
+                document.getElementById('form-section').classList.remove('hidden');
+            }
+        }
+
+        function resetApp() {
+            // Clear code and iframe
+            generatedHTMLCode = "";
+            document.getElementById('preview-frame').srcdoc = "";
+            
+            // Clear form fields (keeping API Key and Level for convenience)
+            document.getElementById('class-num').value = "";
+            document.getElementById('objectives').value = "";
+            document.getElementById('students').value = "4";
+            
+            // Return to initial view
+            document.getElementById('result-section').classList.add('hidden');
+            document.getElementById('loading-section').classList.add('hidden');
+            document.getElementById('form-section').classList.remove('hidden');
+            
+            // Smooth scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function downloadHTML() {
+            if (!generatedHTMLCode) return;
+            
+            const level = document.getElementById('level').value;
+            const classNum = document.getElementById('class-num').value;
+            
+            const blob = new Blob([generatedHTMLCode], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            
+            a.href = url;
+            a.download = `Speaking_Task_${level}_Class${classNum}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
