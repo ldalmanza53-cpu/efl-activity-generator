@@ -33,7 +33,7 @@
     <main id="form-section" class="w-full max-w-4xl glass-panel rounded-2xl p-6 md:p-8 shadow-2xl transition-all duration-300">
         <div class="space-y-6">
             
-            <!-- Top Configuration Row -->
+            <!-- Configuration Row -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Gemini API Key</label>
@@ -55,41 +55,10 @@
                 </div>
             </div>
 
-            <!-- 6 Predetermined Class/Unit Slots -->
-            <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Class / Unit Slots (6 Slots Available)</label>
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
-                    <div>
-                        <span class="text-[10px] text-slate-400 font-semibold block mb-1">Class 1</span>
-                        <input type="text" id="class-1" placeholder="E.g., 47 (p.132)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <span class="text-[10px] text-slate-400 font-semibold block mb-1">Class 2</span>
-                        <input type="text" id="class-2" placeholder="E.g., 55 (p.155)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <span class="text-[10px] text-slate-400 font-semibold block mb-1">Class 3</span>
-                        <input type="text" id="class-3" placeholder="E.g., 57 (p.159)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <span class="text-[10px] text-slate-400 font-semibold block mb-1">Class 4</span>
-                        <input type="text" id="class-4" placeholder="E.g., 59 (p.167)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <span class="text-[10px] text-slate-400 font-semibold block mb-1">Class 5</span>
-                        <input type="text" id="class-5" placeholder="E.g., 60 (p.182)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <span class="text-[10px] text-slate-400 font-semibold block mb-1">Class 6</span>
-                        <input type="text" id="class-6" placeholder="E.g., 62" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Objectives Input -->
+            <!-- Objectives & Classes Single Input Box -->
             <div class="space-y-2">
-                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Communicative Objectives & Grammar Focus</label>
-                <textarea id="objectives" placeholder="Paste the specific learning targets, vocabulary, and grammar functions here..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-4 text-sm text-white focus:outline-none focus:border-indigo-500 resize-none h-40"></textarea>
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Classes, Page Numbers & Communicative Objectives</label>
+                <textarea id="objectives" placeholder="Paste all classes, page numbers, and objectives here (e.g., CLASE 47 pag 132 Report key features... CLASE 55 pag 155 Express feelings...)..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-4 text-sm text-white focus:outline-none focus:border-indigo-500 resize-none h-52"></textarea>
             </div>
         </div>
 
@@ -104,7 +73,7 @@
     <div id="loading-section" class="hidden w-full max-w-4xl glass-panel rounded-2xl p-12 flex flex-col items-center justify-center gap-4 text-center">
         <div class="spinner"></div>
         <h3 class="text-lg font-bold text-white">Designing Activity...</h3>
-        <p class="text-sm text-slate-400">Analyzing specified classes, objectives, and structuring the code (takes approx. 15-20 seconds).</p>
+        <p class="text-sm text-slate-400">Parsing classes, objectives, and structuring role instructions (takes approx. 15-20 seconds).</p>
     </div>
 
     <!-- RESULT SECTION -->
@@ -133,7 +102,7 @@
 
         let generatedHTMLCode = "";
 
-        const systemPrompt = `You are an expert EFL (English as a Foreign Language) Instructional Designer and Senior Front-End Web Developer. Your primary function is to strictly read the user's provided learning objectives and class references, filter/integrate them strictly for the target CEFR level, and build a single-file interactive HTML web application for a speaking production task.
+        const systemPrompt = `You are an expert EFL (English as a Foreign Language) Instructional Designer and Senior Front-End Web Developer. Your primary function is to strictly parse the user's provided text containing classes, unit numbers, page references, and communicative objectives, filter them strictly for the target CEFR level, and build a single-file interactive HTML web application for a speaking production task.
 
 ======================================================================
 CRITICAL LANGUAGE OVERRIDE DIRECTIVE (ZERO-TOLERANCE RULE)
@@ -143,39 +112,48 @@ CRITICAL LANGUAGE OVERRIDE DIRECTIVE (ZERO-TOLERANCE RULE)
 - DO NOT WRITE A SINGLE WORD OF SPANISH IN ANY PART OF YOUR RESPONSE OR INSIDE THE HTML CODE.
 
 ======================================================================
-CRITICAL DOCUMENT & INPUT PARSING PROTOCOL
+ROLE CARD DESIGN & BACKSIDE DIRECTIVE (STRICT INSTRUCTIONS ONLY)
 ======================================================================
-- Parse all specified class/unit numbers, book pages, and communicative objectives provided.
-- Synthesize all provided goals into a cohesive speaking scenario.
+- The BACK side of the 3D flip role cards MUST ONLY CONTAIN:
+  1. Role instructions and narrative backstory/perspective.
+  2. The student's specific task goals, secret motives, or negotiation points.
+  3. Actionable checklists or prompt guidelines for what target language to use (e.g., "MANDATORY: Describe a country using features", "TASK: Speculate about 2 gestures using 'maybe' or 'probably'").
+- DO NOT WRITE FULL PRE-FABRICATED ANSWER SENTENCES or solved example responses (e.g., DO NOT write "Brazil is a huge country in South America with rainforests..."). The card must guide the student on WHAT TO DO and WHAT GRAMMAR TO PRACTICE, forcing THEM to construct the sentences orally during class.
+
+======================================================================
+DYNAMIC TEXT PARSING PROTOCOL
+======================================================================
+- Read the entire pasted text block and automatically detect all class/unit numbers, book page references, and communicative goals.
+- Synthesize all provided goals into a single cohesive speaking scenario.
 - Under NO circumstances should you invent or borrow objectives outside of what the user provides.
 
 ======================================================================
 PEDAGOGICAL & CLASS PROGRESSION DIRECTIVES
 ======================================================================
-- Instructional Language Calibrated to Level: The vocabulary used in task instructions, scenario descriptions, and UI prompts MUST strictly match the target CEFR level. For A1/A2, use simple, high-frequency words, short imperative sentences, and clear visual framing. Never use complex B2/C1 academic vocabulary in lower-level instructions.
-- NO TIMERS: Do NOT include any countdown clock, timer, time limit display, or audio beeps in the web application. The activity is self-paced.
-- If the student count is 1, adjust the activity to be a presentation, monologue, or direct interactive interview with the teacher.
+- Instructional Language Calibrated to Level: The vocabulary used in task instructions, scenario descriptions, and UI prompts MUST strictly match the target CEFR level. For A1/A2, use simple, high-frequency words, short imperative sentences, and clear visual framing.
+- NO TIMERS: Do NOT include any countdown clock, timer, time limit display, or audio beeps.
+- If student count is 1, adapt the activity into a presentation, monologue, or direct interactive interview with the teacher.
 
 ======================================================================
 LAYOUT & UI STRUCTURE REQUIREMENTS
 ======================================================================
-1. THEMATIC & VIBRANT COLOR PALETTE: Use vivid, high-contrast, visually engaging Tailwind CSS color themes customized specifically to the topic or narrative theme of the communicative task (e.g., Emerald/Teal for eco, Amber/Slate for detective, Warm Coral for travel). Avoid plain monochrome or dull grayscale designs.
-2. STANDALONE MAIN TASK CARD (PLACED BEFORE ROLES): Position a large, prominent "Main Task & Scenario Overview" card directly ABOVE the role cards grid. Must contain: Full narrative context, Concrete Final Deliverable, and Step-by-Step Mission Stages Breakdown.
-3. INTERACTIVE 3D FLIP ROLE CARDS GRID: Built as 3D flip cards using CSS perspective (perspective: 1000px; transform-style: preserve-3d; transition: transform 0.6s;). Front Side: Role title, avatar/icon, persona summary, and a clear "Tap / Click to Flip" button. Back Side: Deep secret backstory, conflicting personal motives, specific data constraints, and a role-specific target language checklist.
-4. FULL RESPONSIVENESS: Layout must adapt seamlessly for PC projectors/laptops as well as mobile devices (grid-cols-1 md:grid-cols-2 lg:grid-cols-4).
+1. THEMATIC & VIBRANT COLOR PALETTE: Use vivid, high-contrast, visually engaging Tailwind CSS color themes customized specifically to the topic or narrative theme.
+2. STANDALONE MAIN TASK CARD (PLACED BEFORE ROLES): Position a large "Main Task & Scenario Overview" card directly ABOVE the role cards grid containing narrative context, final deliverable, and mission stages.
+3. INTERACTIVE 3D FLIP ROLE CARDS GRID: Built using CSS perspective (perspective: 1000px; transform-style: preserve-3d; transition: transform 0.6s;). Front: Role title, avatar/icon, persona summary, and "Tap / Click to Flip" button. Back: Secret backstory, instructions, and task guidelines.
+4. FULL RESPONSIVENESS: Layout must adapt seamlessly (grid-cols-1 md:grid-cols-2 lg:grid-cols-4).
 
 ======================================================================
 TECHNICAL FRONT-END GUARDRAILS
 ======================================================================
-- LUCIDE ICON SIZING (MANDATORY): EVERY <i data-lucide="..."> MUST include explicit size classes (e.g., class="w-5 h-5" or class="w-6 h-6"). Un-sized icons break rendering.
-- MODAL CONTROLS: Use Tailwind's native 'hidden' class. Include close buttons (w-6 h-6, p-2, cursor-pointer) and a backdrop click handler (closeModalOnBackdrop).
-- MANDATORY COMPONENTS: Standalone Large Main Task & Scenario Card, Interactive 3D Flip Role Cards Grid, Clickable Scaffolding Toolkit (navigator.clipboard.writeText), Group Scratchpad textarea, Objectives Dossier Modal.
+- LUCIDE ICON SIZING (MANDATORY): EVERY <i data-lucide="..."> MUST include explicit size classes (e.g., class="w-5 h-5" or class="w-6 h-6").
+- MODAL CONTROLS: Use Tailwind's native 'hidden' class. Include close buttons and backdrop click handler.
+- MANDATORY COMPONENTS: Main Task Card, 3D Flip Role Cards Grid, Clickable Scaffolding Toolkit (navigator.clipboard.writeText), Group Scratchpad textarea, Objectives Dossier Modal.
 
 ======================================================================
 REQUIRED RESPONSE FORMAT (STRICTLY IN ENGLISH)
 ======================================================================
 1. Pedagogical Overview
-- Target CEFR Level & Class References
+- Target CEFR Level & Parsed Class Details
 - Extracted Unit Objectives
 - Concrete Deliverable
 - Scenario & Progression Analysis
@@ -189,13 +167,6 @@ Provide one complete, executable HTML block (<!DOCTYPE html>...</html>) ready to
             const level = document.getElementById('level').value;
             const students = document.getElementById('students').value;
             const objectives = document.getElementById('objectives').value.trim();
-
-            // Collect values from the 6 Class/Unit slots
-            const classes = [];
-            for (let i = 1; i <= 6; i++) {
-                const val = document.getElementById(`class-${i}`).value.trim();
-                if (val) classes.push(`Slot ${i}: ${val}`);
-            }
 
             if (!apiKey || !objectives) {
                 alert("Please fill in the required fields (API Key and Objectives).");
@@ -211,19 +182,15 @@ Provide one complete, executable HTML block (<!DOCTYPE html>...</html>) ready to
             document.getElementById('form-section').classList.add('hidden');
             document.getElementById('loading-section').classList.remove('hidden');
 
-            const classRefText = classes.length > 0 ? classes.join(", ") : "Not specified";
-
             const userPrompt = `Please generate the 3D flip-card speaking activity web app based on the following parameters:
 - Target CEFR Level: ${level}
-- Specified Class/Unit References (from 6 available slots): ${classRefText}
 - Number of Students: ${students}
-- Communicative Objectives & Grammar Focus:
+- Raw Pasted Classes, Pages & Communicative Objectives Text:
 ${objectives}
 
-Ensure 100% English output, no timers, vibrant thematic colors, and adherence to all UI guidelines.`;
+Ensure 100% English output, no timers, vibrant thematic colors, strict role instructions without pre-written answer sentences, and adherence to all UI guidelines.`;
 
             try {
-                // Updated model endpoint to gemini-3.6-flash
                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -265,11 +232,6 @@ Ensure 100% English output, no timers, vibrant thematic colors, and adherence to
         function resetApp() {
             generatedHTMLCode = "";
             document.getElementById('preview-frame').srcdoc = "";
-            
-            // Reset the 6 class slots
-            for (let i = 1; i <= 6; i++) {
-                document.getElementById(`class-${i}`).value = "";
-            }
             
             document.getElementById('objectives').value = "";
             document.getElementById('students').value = "6";
